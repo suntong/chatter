@@ -27,10 +27,9 @@ func (h CreatePage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h OpenPage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Print("%+v", r)
 	uri, _ := url.Parse(r.RequestURI)
-	id := uri.Query()["id"]
-	if len(id) != 1 {
+	id, present := uri.Query()["id"]
+	if present == false || len(id) != 1 {
 		w.Write([]byte("Bad Request"))
 	} else {
 		w.Write([]byte(id[0]))
