@@ -32,6 +32,7 @@ func NewClient(ws *websocket.Conn, s *Server, id string) Client {
 func (c *Client) Write(msg string) {
 	select {
 	case c.ch <- msg:
+		fmt.Printf("Wrote to channel")
 	default:
 //		c.Server.Del(c)
 		fmt.Printf("client %d is disconnected.", c.Id)
@@ -44,7 +45,7 @@ func (c *Client) Write(msg string) {
 func (c Client) listenWrite() {
 	for {
 		select {
-		default:
+		case <- c.ch:
 			var documentAsByte []byte
 			len, err := c.Ws.Read(documentAsByte)
 			if err != nil {
