@@ -13,7 +13,7 @@ type Client struct {
 	ch chan(string)
 }
 
-func NewClient(ws websocket.Conn, s *Server, id string) Client {
+func NewClient(ws *websocket.Conn, s *Server, id string) Client {
 	ch := make(chan(string))
 	document, err := s.ReadDocumentContent(id)
 	if err != nil {
@@ -21,7 +21,7 @@ func NewClient(ws websocket.Conn, s *Server, id string) Client {
 	}
 	fmt.Printf("New client connected. Docuent=%s", document)
 	return Client {
-		ws,
+		*ws,
 		s,
 		id,
 		document,
@@ -33,9 +33,9 @@ func (c *Client) Write(msg string) {
 	select {
 	case c.ch <- msg:
 	default:
-		c.server.Del(c)
-		err := fmt.Errorf("client %d is disconnected.", c.id)
-		c.server.Err(err)
+//		c.Server.Del(c)
+		fmt.Printf("client %d is disconnected.", c.Id)
+
 	}
 }
 
