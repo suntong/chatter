@@ -7,10 +7,13 @@ import (
 	"io/ioutil"
 	"github.com/satori/uuid"
 	"net/url"
+	"chatter/sock"
+	"golang.org/x/net/websocket"
 )
 
 type CreatePage struct{}
 type OpenPage struct{}
+var server = sock.NewServer()
 
 func (h CreatePage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
@@ -26,12 +29,13 @@ func (h CreatePage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h OpenPage) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h OpenPage) openNewWebSocket(ws *websocket.Conn) {
 	uri, _ := url.Parse(r.RequestURI)
 	id, present := uri.Query()["id"]
 	if present == false || len(id) != 1 {
 		w.Write([]byte("Bad Request"))
 	} else {
+		sock.NewClient(server)
 		w.Write([]byte(id[0]))
 	}
 }
@@ -40,7 +44,7 @@ func main() {
 	var submitNewPage CreatePage
 	var openPage OpenPage
 	http.Handle("/createPage", submitNewPage)
-	http.Handle("/sha", openPage)
+	http.Handle("/sha", websocket.Handler(openPage))
 	http.Handle("/", http.FileServer(http.Dir("webroot")))
 	log.Fatal(http.ListenAndServe(":22222", nil))
 
