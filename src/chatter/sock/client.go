@@ -17,9 +17,9 @@ func NewClient(ws *websocket.Conn, s *Server, id string) Client {
 	ch := make(chan(string))
 	document, err := s.ReadDocumentContent(id)
 	if err != nil {
-		fmt.Printf("No content found for id=%s. Error=%s", id, err)
+		fmt.Printf("No content found for id=%s. Error=%s\n", id, err)
 	}
-	fmt.Printf("New client connected. Docuent=%s", document)
+	fmt.Printf("New client connected. Docuent=%s\n", document)
 	return Client {
 		*ws,
 		s,
@@ -32,10 +32,10 @@ func NewClient(ws *websocket.Conn, s *Server, id string) Client {
 func (c *Client) Write(msg string) {
 	select {
 	case c.ch <- msg:
-		fmt.Printf("Wrote to channel")
+		fmt.Printf("Wrote to channel\n")
 	default:
 //		c.Server.Del(c)
-		fmt.Printf("client %d is disconnected.", c.Id)
+		fmt.Printf("client %s is disconnected.\n", c.Id)
 
 	}
 }
@@ -49,9 +49,9 @@ func (c Client) listenWrite() {
 			var documentAsByte []byte
 			len, err := c.Ws.Read(documentAsByte)
 			if err != nil {
-				fmt.Printf("Unable to read from socket: %s", err)
+				fmt.Printf("Unable to read from socket: %s\n", err)
 			} else {
-				fmt.Printf("Read %d bytes", len)
+				fmt.Printf("Read %d bytes\n", len)
 				c.Document = string(documentAsByte)
 			}
 		}
@@ -65,9 +65,9 @@ func (c Client) listenRead() {
 		default:
 			len, err := c.Ws.Write([]byte(c.Document))
 			if err != nil {
-				fmt.Printf("Unable to write to socket: %s", err)
+				fmt.Printf("Unable to write to socket: %s\n", err)
 			} else {
-				fmt.Printf("Wrote %d bytes", len)
+				fmt.Printf("Wrote %d bytes\n", len)
 			}
 		}
 	}

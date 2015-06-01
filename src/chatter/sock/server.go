@@ -17,7 +17,7 @@ func (s *Server) AddNewClient(id string, client Client) (bool, error) {
 	clientChannel, present := s.getDocument(id)
 	if !present {
 		fmt.Printf("No such document found: %s", id)
-		return false, fmt.Errorf("No such document found: %s", id)
+		fmt.Printf("Creating new docuemnt with id = : %s", id)
 	}
 	clientChannel = append(clientChannel, client)
 	return true, nil
@@ -55,4 +55,3 @@ func (s *Server) getDocument(id string) (clientChannel []Client, present bool) {
 	clientChannel, present = s.documentChannel[id]
 	return
 }
-
