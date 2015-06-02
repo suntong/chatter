@@ -4,7 +4,7 @@ go:
   - tip
 
 before_install:
-  - cd $GOPATH/src/chatter/
+  - cd $HOME/gopath/src/github.com/vermapratyush/chatter/src/chatter/
 
 install:
   - go get golang.org/x/net/websocket
