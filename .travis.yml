@@ -3,5 +3,8 @@ language: go
 go:
   - tip
 
+before_install:
+  - cd $GOPATH/src/chatter/
+
 install:
   - go get golang.org/x/net/websocket
