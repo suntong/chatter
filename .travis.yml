@@ -8,3 +8,6 @@ before_install:
 
 install:
   - go get golang.org/x/net/websocket
+
+env:
+  - GOPATH=$HOME/gopath/src/github.com/vermapratyush/chatter/
