@@ -3,6 +3,7 @@ package sock
 import (
 	"golang.org/x/net/websocket"
 	"fmt"
+	"encoding/json"
 )
 
 type Peer struct {
@@ -85,7 +86,7 @@ func (pConfig *PeerConfig) Listen() {
 
 func (pConfig *PeerConfig) GetDocument() (string, error) {
 	var document string
-	err := websocket.Message.Send(pConfig.ws, "GetDocument")
+	err := websocket.Message.Send(pConfig.ws, getDocumentPayload(pConfig.id))
 	if err != nil {
 		fmt.Printf("Unable to send GetDocument command to root %s\n", err)
 		return "", nil
@@ -100,42 +101,11 @@ func (pConfig *PeerConfig) GetDocument() (string, error) {
 	return document, nil
 }
 
-func (p *Peer) GetDocument(id string) (string, error) {
-	peerConfigToReadFrom := p.peerList[id][0]
-	var document string
-	err := websocket.Message.Receive(peerConfigToReadFrom.ws, &document)
-	if err != nil {
-		fmt.Printf("Unable to read from socket: %s\n", err)
-		return "", fmt.Errorf("Unable to read from socket: %s\n", err)
-	} else {
-		fmt.Printf("Read %s\n", document)
-	}
-	return document, nil
+func getDocumentPayload(id string) (string) {
+	data := make(map[string] interface{})
+	data["documentId"] = id
+	data["command"] = "GetDocument"
+	payload, _ := json.Marshal(data)
+	fmt.Printf("get document request payload %s", payload)
+	return string(payload)
 }
-
-func (p *Peer) WriteToPeer(pConfig PeerConfig) (error) {
-	if len(p.peerList[pConfig.id]) < 2 {
-		return fmt.Errorf("PeerList is not greater than 1")
-	}
-
-	peerConfigToReadFrom := p.peerList[pConfig.id][0]
-	var documentAsByte string
-	err := websocket.Message.Receive(peerConfigToReadFrom.ws, &documentAsByte)
-	if err != nil {
-		fmt.Printf("Unable to read from socket: %s\n", err)
-	} else {
-		fmt.Printf("Read %s\n", documentAsByte)
-		err = websocket.Message.Send(pConfig.ws, documentAsByte)
-		if err != nil {
-			fmt.Printf("Unable to send data %s", err)
-		} else {
-			fmt.Printf("Data sent");
-		}
-	}
-	return nil
-}
-
-func readFromPeer(id string) (string) {
-	return fmt.Sprintf("READ FROM PEER id = %s", id)
-}
-

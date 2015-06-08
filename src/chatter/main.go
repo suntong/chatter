@@ -7,10 +7,23 @@ import (
 	"net/url"
 	"chatter/sock"
 	"golang.org/x/net/websocket"
+	"encoding/json"
 )
+
+type Response struct {
+	Status int32 `json:"status"`
+	Command string `json:"command"`
+	DocumentId string `json:"documentId"`
+	Author string `json:"author"`
+	Data string `json:"data"`
+}
 
 var pp = sock.Init()
 var index = 0
+var genericError, _ = json.Marshal(Response {
+	400,
+	"", "", "", "",
+})
 
 func debug(w http.ResponseWriter, r *http.Request) {
 	uri, _ := url.ParseRequestURI(r.RequestURI)
@@ -37,10 +50,30 @@ func main() {
 func p2pAddSocket(ws *websocket.Conn) {
 	var doc string
 	websocket.Message.Receive(ws, &doc)
+	var jsonDecoded map[string]interface {}
+
+	if err := json.Unmarshal([]byte(doc), &jsonDecoded); err != nil {
+		fmt.Printf("Error decoding json, %s", err)
+		websocket.Message.Send(ws, string(genericError))
+		return
+	}
+
 	id := fmt.Sprintf("DOC%d", index)
 	index++
 	fmt.Printf("%s ->> %s\n", doc, id)
 	pConfig := pp.AddNewPeer(ws, id)
+	responseBody, err := json.Marshal(Response {
+		200,
+		"Join",
+		id,
+		"", "",
+	})
+	if err != nil {
+		fmt.Printf("Error = %s", err)
+	}
+
+	fmt.Printf("Responding back %+v", string(responseBody))
+	websocket.Message.Send(ws, string(responseBody))
 	pConfig.Listen()
 }
 
