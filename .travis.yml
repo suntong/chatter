@@ -1,0 +1,13 @@
+language: go
+
+go:
+  - tip
+
+before_install:
+  - cd $HOME/gopath/src/github.com/vermapratyush/chatter/src/chatter/
+
+install:
+  - go get golang.org/x/net/websocket
+
+env:
+  - GOPATH=$HOME/gopath/src/github.com/vermapratyush/chatter/
